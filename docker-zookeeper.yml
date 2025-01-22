@@ -1,7 +1,0 @@
-FROM wurstmeister/zookeeper:3.4.6
-
-# Expose Zookeeper default port
-EXPOSE 2181
-
-# Set Zookeeper client port (this is already configured by default)
-ENV ZOOKEEPER_CLIENT_PORT=2181
