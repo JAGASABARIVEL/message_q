@@ -1,3 +1,4 @@
+import os
 import json
 from flask import Flask, request, jsonify
 from confluent_kafka import Producer, KafkaError
@@ -5,15 +6,23 @@ from confluent_kafka import Producer, KafkaError
 app = Flask(__name__)
 
 # Kafka Configuration
-KAFKA_BROKER = 'localhost:9092'  # Update with your Kafka broker URL
 TOPIC = 'whatsapp'
 
-# Initialize Kafka Producer
-producer_config = {
-    'bootstrap.servers': KAFKA_BROKER,  # Confluent Kafka broker URL
-    'client.id': 'flask-app',          # Optional client identifier
-}
+def read_config():
+  # reads the client configuration from client.properties
+  # and returns it as a key-value map
+  config = {}
+  with open("kafka.config") as fh:
+    for line in fh:
+      line = line.strip()
+      if len(line) != 0 and line[0] != "#":
+        parameter, value = line.strip().split('=', 1)
+        config[parameter] = value.strip()
+  return config
 
+producer_config = read_config()
+producer_config["sasl.username"] = os.environ.get("username")
+producer_config["sasl.password"] = os.environ.get("password")
 producer = Producer(producer_config)
 
 def delivery_report(err, msg):
